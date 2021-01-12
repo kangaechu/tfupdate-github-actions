@@ -1,6 +1,6 @@
 #!/bin/sh -l
 
-set -eu
+set -eux
 
 subcommandTerraform(){
   VERSION=$(tfupdate release latest hashicorp/terraform)
@@ -17,7 +17,7 @@ subcommandTerraform(){
     if git add . && git diff --cached --exit-code --quiet; then
       echo "No changes"
     else
-      if [ "${UPDATE_TFENV_VERSION_FILES}" == "1" ]; then
+      if [ "${UPDATE_TFENV_VERSION_FILES}" -eq 1 ]; then
         for UPDATED_HCL in $(git diff --cached --name-only); do
           TFENV_VERSION_FILE="$(dirname "$UPDATED_HCL")/.terraform-version"
           if [ -f "$TFENV_VERSION_FILE" ]; then
