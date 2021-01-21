@@ -6,12 +6,12 @@ subcommandTerraform(){
   VERSION=$(tfupdate release latest hashicorp/terraform)
 
   UPDATE_MESSAGE="[tfupdate] Update terraform to v${VERSION}"
-  if hub pr list -s "open" -f "%t: %U%n" | grep -F "$UPDATE_MESSAGE"; then
-    echo "A pull request already exists"
-  elif hub pr list -s "merged" -f "%t: %U%n" | grep -F "$UPDATE_MESSAGE"; then
-    echo "A pull request is already merged"
-  else
-    git checkout -b "update-terraform-to-v${VERSION}" "origin/${PR_BASE_BRANCH}"
+#  if hub pr list -s "open" -f "%t: %U%n" | grep -F "$UPDATE_MESSAGE"; then
+#    echo "A pull request already exists"
+#  elif hub pr list -s "merged" -f "%t: %U%n" | grep -F "$UPDATE_MESSAGE"; then
+#    echo "A pull request is already merged"
+#  else
+    git checkout -b "update-terraform-to-v${VERSION}-" "origin/${PR_BASE_BRANCH}"
     tfupdate terraform -v "${VERSION}" "${TFUPDATE_OPTIONS}" "${TFUPDATE_PATH}"
 
     if git add . && git diff --cached --exit-code --quiet; then
@@ -24,14 +24,22 @@ subcommandTerraform(){
             echo "$VERSION" > "$TFENV_VERSION_FILE"
           fi
         done
+        ls -al
+        pwd
+        if [ -f ".terraform-version" ]; then
+          echo ".terraform-version found"
+          echo "$VERSION" > .terraform-version
+        else
+          echo ".terraform-version NOT found"
+        fi
         git add .
       fi
 
       git commit -m "$UPDATE_MESSAGE"
       PR_BODY="For details see: https://github.com/hashicorp/terraform/releases"
-      git push origin HEAD && hub pull-request -m "$UPDATE_MESSAGE" -m "$PR_BODY" -b "${PR_BASE_BRANCH}"
+      echo git push origin HEAD && echo hub pull-request -m "$UPDATE_MESSAGE" -m "$PR_BODY" -b "${PR_BASE_BRANCH}"
     fi
-  fi
+#  fi
 }
 
 subcommandProvider() {
